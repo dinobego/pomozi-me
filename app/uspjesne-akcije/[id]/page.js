@@ -1,13 +1,27 @@
-"use client"
 import Link from 'next/link'
 import ImageSlider from '@/components/ImageSlider'
 import ProgressBar from '@/components/ProgressBar'
-import { completedActions } from '@/data/actions'
 import { notFound } from 'next/navigation'
+import { promises as fs } from 'fs'
+import path from 'path'
+
+// Fetch completed action by ID
+async function getCompletedAction(id) {
+  try {
+    const filePath = path.join(process.cwd(), 'data', 'actions-db.json')
+    const data = await fs.readFile(filePath, 'utf-8')
+    const json = JSON.parse(data)
+    return json.actions.find(a => a.id === id && a.completed)
+  } catch (error) {
+    console.error('Error loading action:', error)
+    return null
+  }
+}
 
 export default async function CompletedActionDetailPage({ params }) {
-const resolvedParams = await params
-const action = completedActions.find(a => a.id === parseInt(resolvedParams.id))
+  const resolvedParams = await params
+  const action = await getCompletedAction(resolvedParams.id)
+  
   if (!action) notFound()
 
   return (
@@ -30,17 +44,18 @@ const action = completedActions.find(a => a.id === parseInt(resolvedParams.id))
                 <ProgressBar collected={action.collected} goal={action.goal} isCompleted={true} />
                 <p className="mt-4 text-gray-600">Hvala svima koji su učestvovali! 🎉</p>
               </div>
-<Link
-  href="/uspjesne-akcije"
-  className="inline-flex items-center justify-center gap-3 px-10 py-4 rounded-full font-bold text-lg text-white hover:shadow-lg transition-all shadow-lg"
-  style={{
-    background: "#00cb2f",
-    backgroundColor: "#00cb2f"
-  }}
-  onMouseEnter={(e) => e.target.style.opacity = "0.9"}
-  onMouseLeave={(e) => e.target.style.opacity = "1"}
->
-Pogledaj aktivne akcije</Link>
+              <Link
+                href="/aktivne-akcije"
+                className="inline-flex items-center justify-center gap-3 px-10 py-4 rounded-full font-bold text-lg text-white hover:shadow-lg transition-all shadow-lg"
+                style={{
+                  background: "#00cb2f",
+                  backgroundColor: "#00cb2f"
+                }}
+                onMouseEnter={(e) => e.target.style.opacity = "0.9"}
+                onMouseLeave={(e) => e.target.style.opacity = "1"}
+              >
+                Pogledaj aktivne akcije
+              </Link>
             </div>
           </div>
         </div>

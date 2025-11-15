@@ -1,39 +1,17 @@
 export const activeActions = [
   {
-    "title": "zu",
-    "shortDescription": "zuizui",
-    "fullDescription": "zuizui",
-    "goal": "76678768",
-    "collected": "7878",
-    "mainImage": "/images/1763216697645-Nenaslovljeni-dizajn-(5).png",
+    "title": "gfhdghh",
+    "shortDescription": "gfhfgh",
+    "fullDescription": "gfhgfh",
+    "goal": "435345",
+    "collected": "345",
+    "mainImage": "/images/1763248383875-pexels-pixabay-263564.jpg",
     "gallery": [
-      "/images/1763216697645-Nenaslovljeni-dizajn-(5).png",
-      "/images/1763216697676-Nenaslovljeni-dizajn-(4).png",
-      "/images/1763216697712-Nenaslovljeni-dizajn-(3).png",
-      "/images/1763216697724-Nenaslovljeni_dizajn__2_-removebg-preview-(1).png",
-      "/images/1763216697735-Nenaslovljeni_dizajn__2_-removebg-preview.png",
-      "/images/1763216697829-Nenaslovljeni-dizajn-(2).png",
-      "/images/1763216697848-sdfsdf-(1).jpg",
-      "/images/1763216697868-sdfsdf.jpg",
-      "/images/1763216697889-slider5.jpg"
+      "/images/1763248383875-pexels-pixabay-263564.jpg"
     ],
     "urgent": false,
     "completed": false,
-    "id": 104
-  },
-  {
-    "title": "hg",
-    "shortDescription": "hjg",
-    "fullDescription": "ghj",
-    "goal": "546",
-    "collected": "546",
-    "mainImage": "/images/1763217857781-Nenaslovljeni-dizajn-(3).png",
-    "gallery": [
-      "/images/1763217857781-Nenaslovljeni-dizajn-(3).png"
-    ],
-    "urgent": false,
-    "completed": false,
-    "id": 105
+    "id": 103
   }
 ]
 

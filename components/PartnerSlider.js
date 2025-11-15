@@ -2,23 +2,15 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { partners } from "@/data/actions"
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa"
 
-export default function PartnerSlider() {
+export default function PartnerSlider({ partners = [] }) {
   const [current, setCurrent] = useState(0)
   const [autoPlay, setAutoPlay] = useState(true)
 
-  // AKO NEMA PARTNERA, PRIKAŽI PRAZNU SEKCIJU
+  // AKO NEMA PARTNERA, NE PRIKAZUJ SEKCIJU
   if (!partners || partners.length === 0) {
-    return (
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4 text-center text-gray-500">
-          <h2 className="text-3xl font-bold mb-4 text-gray-800">Naši partneri</h2>
-          <p className="text-lg">Nema dostupnih partnera</p>
-        </div>
-      </section>
-    )
+    return null
   }
 
   const next = () => {
@@ -72,7 +64,7 @@ export default function PartnerSlider() {
             <div className="relative h-64 md:h-80 flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
               {partners.map((partner, idx) => (
                 <div
-                  key={idx}
+                  key={partner.id || idx}
                   className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ease-in-out ${
                     idx === current
                       ? "opacity-100 scale-100"
@@ -133,13 +125,6 @@ export default function PartnerSlider() {
                 aria-label={`Idi na slide ${idx + 1}`}
               />
             ))}
-          </div>
-
-          {/* Info sekcija */}
-          <div className="mt-8 text-center">
-            <p className="text-gray-600 text-sm">
-              {autoPlay ? "" : ""}
-            </p>
           </div>
         </div>
       </div>

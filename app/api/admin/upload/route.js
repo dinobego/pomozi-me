@@ -1,33 +1,36 @@
-﻿import { NextResponse } from 'next/server'
-import { writeFile } from 'fs/promises'
-import { join } from 'path'
+﻿import { promises as fs } from 'fs'
+import path from 'path'
+import { NextResponse } from 'next/server'
 
 export async function POST(request) {
   try {
     const formData = await request.formData()
     const file = formData.get('file')
-
+    
     if (!file) {
-      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
+      return NextResponse.json({ success: false, error: 'No file' }, { status: 400 })
     }
-
+    
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-
-    // Generiši jedinstveno ime fajla
-    const timestamp = Date.now()
-    const filename = `${timestamp}-${file.name.replace(/\s+/g, '-')}`
-    const path = join(process.cwd(), 'public', 'images', filename)
-
-    await writeFile(path, buffer)
-
-    return NextResponse.json({ 
-      success: true, 
-      filename,
-      url: `/images/${filename}` 
-    })
+    
+    // Generate unique filename
+    const filename = `${Date.now()}-${file.name.replace(/\s/g, '-')}`
+    const uploadDir = path.join(process.cwd(), 'public', 'images')
+    
+    // Ensure directory exists
+    await fs.mkdir(uploadDir, { recursive: true })
+    
+    // Save file
+    const filepath = path.join(uploadDir, filename)
+    await fs.writeFile(filepath, buffer)
+    
+    // Return public URL
+    const url = `/images/${filename}`
+    
+    return NextResponse.json({ success: true, url })
   } catch (error) {
     console.error('Upload error:', error)
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
   }
 }

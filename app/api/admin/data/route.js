@@ -1,20 +1,22 @@
-﻿import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
-import { activeActions, completedActions, partners } from '@/data/actions'
+﻿import { promises as fs } from 'fs'
+import path from 'path'
+import { NextResponse } from 'next/server'
 
-export async function GET() {
-  const cookieStore = await cookies()
-  const authCookie = cookieStore.get('admin-auth')
-  
-  if (authCookie?.value !== 'true') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+const DATA_FILE = path.join(process.cwd(), 'data', 'actions-db.json')
+
+async function readData() {
+  try {
+    const data = await fs.readFile(DATA_FILE, 'utf-8')
+    return JSON.parse(data)
+  } catch {
+    return { actions: [], partners: [] }
   }
+}
 
+export async function GET(request) {
+  const data = await readData()
   return NextResponse.json({
-    actions: [
-      ...activeActions.map(a => ({...a, completed: false})),
-      ...completedActions.map(a => ({...a, completed: true}))
-    ],
-    partners: partners
+    actions: data.actions || [],
+    partners: data.partners || []
   })
 }

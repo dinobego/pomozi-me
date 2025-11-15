@@ -1,71 +1,49 @@
-﻿import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
-import fs from 'fs'
+﻿import { promises as fs } from 'fs'
 import path from 'path'
+import { NextResponse } from 'next/server'
 
-const dataPath = path.join(process.cwd(), 'data', 'actions.js')
+const DATA_FILE = path.join(process.cwd(), 'data', 'actions-db.json')
 
-function readData() {
-  const fileContent = fs.readFileSync(dataPath, 'utf-8')
-  const activeMatch = fileContent.match(/export const activeActions = (\[[\s\S]*?\])\n\nexport const completedActions/)
-  const completedMatch = fileContent.match(/export const completedActions = (\[[\s\S]*?\])\n\nexport const partners/)
-  const partnersMatch = fileContent.match(/export const partners = (\[[\s\S]*?\])/)
-  
-  return {
-    activeActions: activeMatch ? JSON.parse(activeMatch[1].replace(/'/g, '"')) : [],
-    completedActions: completedMatch ? JSON.parse(completedMatch[1].replace(/'/g, '"')) : [],
-    partners: partnersMatch ? JSON.parse(partnersMatch[1].replace(/'/g, '"')) : []
-  }
+async function readData() {
+  const data = await fs.readFile(DATA_FILE, 'utf-8')
+  return JSON.parse(data)
 }
 
-function writeData(data) {
-  const content = `export const activeActions = ${JSON.stringify(data.activeActions, null, 2)}
-
-export const completedActions = ${JSON.stringify(data.completedActions, null, 2)}
-
-export const partners = ${JSON.stringify(data.partners, null, 2)}
-`
-  fs.writeFileSync(dataPath, content, 'utf-8')
+async function writeData(data) {
+  await fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2))
 }
 
-// POST - dodaj novog partnera
+// GET - Fetch partners
+export async function GET(request) {
+  const data = await readData()
+  return NextResponse.json({ partners: data.partners || [] })
+}
+
+// POST - Create partner
 export async function POST(request) {
-  const cookieStore = await cookies()
-  const authCookie = cookieStore.get('admin-auth')
-  
-  if (authCookie?.value !== 'true') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
   const body = await request.json()
-  const data = readData()
+  const data = await readData()
   
   const newPartner = {
-    id: Math.max(...data.partners.map(p => p.id || 0), 0) + 1,
-    name: body.name,
-    logo: body.logo
+    id: Date.now().toString(),
+    ...body,
+    createdAt: new Date().toISOString()
   }
-
+  
+  data.partners = data.partners || []
   data.partners.push(newPartner)
-  writeData(data)
-
+  await writeData(data)
+  
   return NextResponse.json({ success: true, partner: newPartner })
 }
 
-// DELETE - obriši partnera
+// DELETE - Remove partner
 export async function DELETE(request) {
-  const cookieStore = await cookies()
-  const authCookie = cookieStore.get('admin-auth')
+  const body = await request.json()
+  const data = await readData()
   
-  if (authCookie?.value !== 'true') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const { id } = await request.json()
-  const data = readData()
+  data.partners = data.partners.filter(p => p.id !== body.id)
+  await writeData(data)
   
-  data.partners = data.partners.filter(p => p.id !== id)
-  writeData(data)
-
   return NextResponse.json({ success: true })
 }
